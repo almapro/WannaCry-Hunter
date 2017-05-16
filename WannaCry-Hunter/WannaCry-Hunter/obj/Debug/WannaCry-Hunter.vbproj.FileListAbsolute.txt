@@ -1,0 +1,10 @@
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\bin\Debug\WannaCry-Hunter.exe
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\bin\Debug\WannaCry-Hunter.pdb
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\bin\Debug\WannaCry-Hunter.xml
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\obj\Debug\WannaCry_Hunter.Form1.resources
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\obj\Debug\WannaCry_Hunter.Resources.resources
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\obj\Debug\WannaCry-Hunter.vbproj.GenerateResource.Cache
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\obj\Debug\WannaCry-Hunter.exe
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\obj\Debug\WannaCry-Hunter.xml
+c:\users\alma3lol\documents\visual studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\obj\Debug\WannaCry-Hunter.pdb
+C:\Users\AlMA3lOl\Documents\Visual Studio 2015\Projects\WannaCry-Hunter\WannaCry-Hunter\obj\Debug\WannaCry-Hunter.vbprojResolveAssemblyReference.cache

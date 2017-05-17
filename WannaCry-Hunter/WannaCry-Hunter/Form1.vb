@@ -2,9 +2,14 @@
 Public Class Form1
     Dim w As New Watcher
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        If w.lof.Count = 0 Then MsgBox("No forbidden access to any folder!") : Exit Sub
+        Button1.Enabled = False
         w.UFA()
+        Button1.Enabled = True
     End Sub
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Button1.Enabled = False
+        Button2.Enabled = False
         Timer1.Enabled = False
         Timer2.Enabled = False
         w.EndIt()
@@ -55,7 +60,7 @@ Public Class Form1
 st:
         If CanH() Then
             If Not CH() Then
-                MsgBox("We need to go admin, so make sure that no program can shut us down without permissions!" & vbNewLine & "(Warnning: BlueSceen could appear!!!)", MsgBoxStyle.Information, "Not an admin yet")
+                MsgBox("We need to go admin, so make sure that no program can shut us down without permissions!" & vbNewLine & "(Warning: BlueSceen could appear!!!)", MsgBoxStyle.Information, "Not an admin yet")
                 If Not GH() Then GoTo st
                 Me.Close()
                 End
@@ -97,19 +102,26 @@ st:
     End Sub
     Private Sub Timer2_Tick(sender As Object, e As EventArgs) Handles Timer2.Tick
         If w.Spotted Then
+            Me.WindowState = FormWindowState.Normal
             Label1.Text = w.SpottedCase
+            NotifyIcon1.ShowBalloonTip(3000, "WannaCry-Hunter", w.SpottedCase, ToolTipIcon.Info)
             Me.Visible = True
+            Me.TopMost = True
             Me.Focus()
+            Me.TopMost = False
+            w.Gotit()
         End If
     End Sub
     Private Sub OnMin(sender As Object, e As EventArgs) Handles Me.SizeChanged
         If Me.WindowState = FormWindowState.Minimized Then
-            NotifyIcon1.ShowBalloonTip(3000, "WannaCry-Hunter", "WannaCry-Hunter is minimized and hidden." & vbNewLine & "To have it back, double click on the Notification Icon.", ToolTipIcon.Info)
+            Threading.Thread.Sleep(100)
             Me.WindowState = FormWindowState.Normal
+            NotifyIcon1.ShowBalloonTip(3000, "WannaCry-Hunter", "WannaCry-Hunter is minimized and hidden." & vbNewLine & "To have it back, double click on the Notification Icon.", ToolTipIcon.Info)
             Me.Visible = False
         End If
     End Sub
     Private Sub NotifyIcon1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles NotifyIcon1.MouseDoubleClick
+        Me.WindowState = FormWindowState.Normal
         Me.Visible = True
     End Sub
     Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing

@@ -5,15 +5,18 @@ Public Class Watcher
     <DllImport("ntdll")>
     Shared Function NtSetInformationProcess(ByVal p As IntPtr, ByVal c As Integer, ByRef i As Integer, ByVal l As Integer) As Integer
     End Function
+    Sub Gotit()
+        _spotted = False
+    End Sub
     Sub log(data As String)
-        If data.StartsWith("Access to the path") Or data.StartsWith("Error reading") Then Exit Sub
+        If data.StartsWith("Access to the path") Or data.StartsWith("Error reading") Or data.StartsWith("The process cannot access the file") Or data.StartsWith("Could not find a part of the path") Then Exit Sub
         Try
             IO.File.AppendAllText("WannaCry-Hunter.log", "->->->->" & vbNewLine & data & vbNewLine & "<-<-<-<" & vbNewLine)
         Catch ex As Exception
             log(ex.Message & vbNewLine & ex.StackTrace)
         End Try
     End Sub
-    Dim lof As New List(Of String)
+    Public lof As New List(Of String)
     Dim low As New List(Of FileSystemWatcher)
     Dim lor As New List(Of Threading.Thread)
     Dim _case As String = ""
@@ -37,7 +40,7 @@ Public Class Watcher
         End Try
         running = True
         For Each d In My.Computer.FileSystem.Drives
-            If d.IsReady Then Run(d.RootDirectory.FullName)
+            If d.IsReady And d.DriveType <> DriveType.CDRom Then Run(d.RootDirectory.FullName)
         Next
         Try
             Dim mProc As Process = Process.GetCurrentProcess()
@@ -74,9 +77,19 @@ Public Class Watcher
     End Sub
     Sub UFA()
         Try
+            _case = "Status: We have (" & lof.Count & ") folder(s) to allow access to..."
+            _spotted = True
             For Each p In lof.ToArray
-                UnforbidAccess(p)
+                Try
+                    _case = "Status: Allowing access to ==> " & p
+                    _spotted = True
+                    UnforbidAccess(p)
+                Catch ex As Exception
+                    log(ex.Message & vbNewLine & ex.StackTrace)
+                End Try
             Next
+            _case = "Status: Access was granted"
+            _spotted = True
             lof.Clear()
         Catch ex As Exception
             log(ex.Message & vbNewLine & ex.StackTrace)
@@ -86,9 +99,6 @@ Public Class Watcher
     Private Sub Run(p As String)
         Try
             If Not IO.Directory.Exists(p) Or Not running Then Exit Sub
-            For Each d In {"c:\windows", "C:\Recovery", "C:\$"}
-                If p.ToLower = d.ToLower Or p.ToLower.EndsWith(d.ToLower) Or p.ToLower.StartsWith(d.ToLower) Then Exit Sub
-            Next
             'Do Until lor.Count < 15
             'Loop
             Try
@@ -107,6 +117,7 @@ Public Class Watcher
             End Try
             Dim watcher As New FileSystemWatcher()
             watcher.Path = p
+            watcher.IncludeSubdirectories = True
             watcher.NotifyFilter = (NotifyFilters.LastAccess Or NotifyFilters.LastWrite Or NotifyFilters.FileName Or NotifyFilters.DirectoryName)
             watcher.Filter = "*.w*ry*"
             AddHandler watcher.Created, AddressOf OnChanged
@@ -121,14 +132,23 @@ Public Class Watcher
     Sub SecureSubDirs(p As String)
         If Not IO.Directory.Exists(p) Then Exit Sub
         Try
-            Dim watcher As New FileSystemWatcher()
-            watcher.Path = p
-            watcher.NotifyFilter = (NotifyFilters.LastAccess Or NotifyFilters.LastWrite Or NotifyFilters.FileName Or NotifyFilters.DirectoryName)
-            watcher.Filter = "*.w*ry*"
-            AddHandler watcher.Created, AddressOf OnChanged
-            AddHandler watcher.Renamed, AddressOf OnChanged
-            watcher.EnableRaisingEvents = True
-            low.Add(watcher)
+            For Each d In {"c:\windows", "C:\Recovery", "C:\$", "startup", "ImportAfter"}
+                If p.ToLower = d.ToLower Or p.ToLower.EndsWith(d.ToLower) Or p.ToLower.Remove(p.Length - 1).EndsWith(d.ToLower) Or p.ToLower.StartsWith(d.ToLower) Then Exit Sub
+            Next
+            'Dim watcher As New FileSystemWatcher()
+            'watcher.Path = p
+            'watcher.IncludeSubdirectories = True
+            'watcher.NotifyFilter = (NotifyFilters.LastAccess Or NotifyFilters.LastWrite Or NotifyFilters.FileName Or NotifyFilters.DirectoryName)
+            'watcher.Filter = "*.w*ry*"
+            'AddHandler watcher.Created, AddressOf OnChanged
+            'AddHandler watcher.Renamed, AddressOf OnChanged
+            'watcher.EnableRaisingEvents = True
+            'low.Add(watcher)
+            'Try
+            '    IO.File.AppendAllText("folders.txt", p & vbNewLine)
+            'Catch ex As Exception
+            '    log(ex.Message & vbNewLine & ex.StackTrace)
+            'End Try
             For Each d In IO.Directory.GetDirectories(p)
                 Try
                     IO.File.WriteAllText(d & "\.alma.txt", "Testing WannaCry-Hunter.")
@@ -168,8 +188,8 @@ Public Class Watcher
     End Function
     Private Sub OnChanged(source As Object, e As FileSystemEventArgs)
         Try
-            _spotted = True
             _case = "Spotted: " & e.FullPath & " " & e.ChangeType.ToString
+            _spotted = True
             IO.File.WriteAllText("Spotted.txt", "Spotted: " & e.FullPath & " " & e.ChangeType.ToString)
             If IO.Directory.Exists(e.FullPath) Then
                 ForbidAccess(e.FullPath)
